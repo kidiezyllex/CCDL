@@ -1,3 +1,6 @@
+const OPENROUTER_API_KEY = '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';
+const MODEL = 'google/gemini-2.5-flash-preview:thinking';
+
 interface AnalysisResult {
   uaw?: {
     simple?: number;
@@ -11,19 +14,21 @@ interface AnalysisResult {
   };
 }
 
-export const geminiService = {
+export const aiService = {
   analyzeText: async (text: string): Promise<string> => {
     try {
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
           'HTTP-Referer': window.location.origin,
           'X-Title': 'UCP Calculator'
         },
         body: JSON.stringify({
-          model: process.env.MODEL,
+          model: MODEL,
+          temperature: 0.7,
+          frequency_penalty: 0.5,
           messages: [
             {
               role: 'user',
@@ -59,29 +64,25 @@ export const geminiService = {
       const data = await response.json();
       return data.choices[0].message.content;
     } catch (error) {
-      console.error('Error calling Gemini API:', error);
+      console.error('Error calling OpenRouter API:', error);
       throw error;
     }
   },
-
-  /**
-   * Analyzes an image using the Gemini model via OpenRouter
-   */
   analyzeImage: async (image: File): Promise<string> => {
     try {
-      // Convert the image to base64
       const base64Image = await fileToBase64(image);
-      
       const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
           'HTTP-Referer': window.location.origin,
           'X-Title': 'UCP Calculator'
         },
         body: JSON.stringify({
-          model: process.env.MODEL,
+          model: MODEL,
+          temperature: 0.7,
+          frequency_penalty: 0.5,
           messages: [
             {
               role: 'user',
@@ -126,13 +127,13 @@ export const geminiService = {
       const data = await response.json();
       return data.choices[0].message.content;
     } catch (error) {
-      console.error('Error calling Gemini API:', error);
+      console.error('Error calling OpenRouter API:', error);
       throw error;
     }
   },
 
   /**
-   * Parses the analysis results from the Gemini API response
+   * Parses the analysis results from the API response
    */
   parseAnalysisFromText: (text: string): AnalysisResult | null => {
     try {

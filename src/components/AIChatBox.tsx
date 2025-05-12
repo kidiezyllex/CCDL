@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { geminiService } from '../services/geminiService';
+import { aiService } from '../services/aiService';
 import { ImageIcon, SendIcon, ClipboardCheck } from 'lucide-react';
 
 interface Message {
@@ -34,6 +34,7 @@ export function AIChatBox({ onInsertValues }: AIChatBoxProps) {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [analysis, setAnalysis] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -61,10 +62,7 @@ export function AIChatBox({ onInsertValues }: AIChatBoxProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!input.trim() && !imageFile) return;
-    
-    // Add user message to chat
     const userMessage: Message = {
       role: 'user',
       content: input || 'Analyze this image and extract UCP values.'
@@ -73,84 +71,30 @@ export function AIChatBox({ onInsertValues }: AIChatBoxProps) {
     setMessages(prev => [...prev, userMessage]);
     setInput('');
     setIsLoading(true);
-    
-    try {
-      let responseText = '';
-      
-      if (process.env.NODE_ENV === 'production') {
-        if (imageFile) {
-          responseText = await geminiService.analyzeImage(imageFile);
-        } else {
-          responseText = await geminiService.analyzeText(input);
-        }
-      } else {
-        const mockResponse = simulateGeminiResponse(input, imageFile);
-        responseText = mockResponse.content;
-        await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API delay
-      }
-      
-      const extractedAnalysis = geminiService.parseAnalysisFromText(responseText);
-      
-      const assistantMessage: Message = {
-        role: 'assistant',
-        content: responseText,
-        analysis: extractedAnalysis || undefined
-      };
-      
-      setMessages(prev => [...prev, assistantMessage]);
-      setAnalysis(extractedAnalysis);
-      setIsLoading(false);
-      clearImage();
-    } catch (error) {
-      console.error('Error calling AI service:', error);
-      setMessages(prev => [...prev, { 
-        role: 'assistant', 
-        content: 'Sorry, there was an error processing your request.' 
-      }]);
-      setIsLoading(false);
+    setError(null);
+
+    let aiResponseContent: string;
+    if (imageFile) {
+      aiResponseContent = await aiService.analyzeImage(imageFile);
+    } else {
+      aiResponseContent = await aiService.analyzeText(input);
     }
+
+    const response = {
+      role: 'assistant' as const,
+      content: aiResponseContent
+    };
+    
+    setMessages(prev => [...prev, response]);
+    setAnalysis(aiService.parseAnalysisFromText(aiResponseContent));
+    setIsLoading(false);
+    clearImage();
   };
 
   const handleInsertValues = () => {
     if (analysis) {
       onInsertValues(analysis);
     }
-  };
-
-  const simulateGeminiResponse = (text: string, image: File | null) => {
-    const sampleText = `I've analyzed ${image ? 'the image' : 'your input'} and extracted the following UCP values:
-
-\`\`\`json
-{
-  "uaw": {
-    "simple": 2,
-    "average": 3,
-    "complex": 1
-  },
-  "uucw": {
-    "simple": 5,
-    "average": 3,
-    "complex": 2
-  }
-}
-\`\`\`
-
-These values represent:
-- UAW (Unadjusted Actor Weight):
-  - 2 Simple actors (e.g., APIs, defined interfaces)
-  - 3 Average actors (interactive interfaces/protocols)
-  - 1 Complex actor (human users with GUI interfaces)
-- UUCW (Unadjusted Use Case Weight):
-  - 5 Simple use cases (1-3 transactions, <5 classes)
-  - 3 Average use cases (4-7 transactions, 5-10 classes)
-  - 2 Complex use cases (>7 transactions, >10 classes)
-
-Would you like me to insert these values into the form?`;
-
-    return {
-      role: 'assistant' as const,
-      content: sampleText
-    };
   };
 
   return (
@@ -253,13 +197,11 @@ Would you like me to insert these values into the form?`;
             </form>
           </div>
         </div>
-        
         {/* Results section - Right side */}
         <div className="flex flex-col w-1/2">
           <div className="p-4 border-b">
             <h3 className="font-semibold">Analysis Results</h3>
           </div>
-          
           <div className="flex-1 p-4 overflow-y-auto">
             {analysis ? (
               <div className="p-4 rounded-lg bg-gray-50">
