@@ -1,5 +1,5 @@
-const OPENROUTER_API_KEY = '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';
-const MODEL = 'google/gemini-2.5-flash-preview:thinking';
+const OPENROUTER_API_KEY = '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';
+const MODEL = 'meta-llama/llama-4-maverick:free';
 
 interface AnalysisResult {
   uaw?: {
@@ -131,16 +131,11 @@ export const aiService = {
       throw error;
     }
   },
-
-  /**
-   * Parses the analysis results from the API response
-   */
   parseAnalysisFromText: (text: string): AnalysisResult | null => {
     try {
-      // Try to find a JSON structure in the response
-      const jsonMatch = text.match(/```json([\s\S]*?)```|{[\s\S]*?}/);
+      const jsonMatch = text.match(/```json([\s\S]*?)```|({[\s\S]*})[^}]*$/);
       if (jsonMatch && jsonMatch[0]) {
-        let jsonStr = jsonMatch[0];
+        let jsonStr = jsonMatch[1] || jsonMatch[2];
         if (jsonStr.startsWith('```json')) {
           jsonStr = jsonStr.replace(/```json|```/g, '');
         }
