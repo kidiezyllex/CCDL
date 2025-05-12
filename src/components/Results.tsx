@@ -1,4 +1,12 @@
-import React from 'react';
+interface ResultsProps {
+  uucp: number;
+  tcf: number;
+  ef: number;
+  ucp: number;
+  effort: number;
+  productivityFactor: number;
+}
+
 export function Results({
   uucp,
   tcf,
@@ -6,12 +14,12 @@ export function Results({
   ucp,
   effort,
   productivityFactor
-}) {
+}: ResultsProps) {
   return <div>
-      <h2 className="text-xl font-bold mb-4">Calculation Results</h2>
-      <div className="grid md:grid-cols-2 gap-6">
-        <div className="bg-gray-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-lg mb-2">Intermediate Values</h3>
+      <h2 className="mb-4 text-xl font-bold">Calculation Results</h2>
+      <div className="grid gap-6 md:grid-cols-2">
+        <div className="p-4 rounded-lg bg-gray-50">
+          <h3 className="mb-2 text-lg font-semibold">Intermediate Values</h3>
           <div className="space-y-3">
             <div>
               <div className="text-sm text-gray-600">
@@ -33,8 +41,8 @@ export function Results({
             </div>
           </div>
         </div>
-        <div className="bg-blue-50 p-4 rounded-lg">
-          <h3 className="font-semibold text-lg mb-2">Final Estimates</h3>
+        <div className="p-4 rounded-lg bg-blue-50">
+          <h3 className="mb-2 text-lg font-semibold">Final Estimates</h3>
           <div className="space-y-4">
             <div>
               <div className="text-sm text-gray-600">
@@ -69,8 +77,8 @@ export function Results({
           </div>
         </div>
       </div>
-      <div className="mt-6 p-4 border border-yellow-200 bg-yellow-50 rounded-lg">
-        <h3 className="font-medium mb-2">Note:</h3>
+      <div className="p-4 mt-6 border border-yellow-200 rounded-lg bg-yellow-50">
+        <h3 className="mb-2 font-medium">Note:</h3>
         <p className="text-sm text-gray-700">
           The effort estimation is based on the productivity factor of{' '}
           {productivityFactor} hours per UCP. This can vary based on team

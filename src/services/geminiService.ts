@@ -1,6 +1,3 @@
-const OPENROUTER_API_KEY = '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';
-const MODEL = 'google/gemini-2.5-flash-preview';
-
 interface AnalysisResult {
   uaw?: {
     simple?: number;
@@ -21,12 +18,12 @@ export const geminiService = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
           'HTTP-Referer': window.location.origin,
           'X-Title': 'UCP Calculator'
         },
         body: JSON.stringify({
-          model: MODEL,
+          model: process.env.MODEL,
           messages: [
             {
               role: 'user',
@@ -79,12 +76,12 @@ export const geminiService = {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+          'Authorization': `Bearer ${process.env.OPENROUTER_API_KEY}`,
           'HTTP-Referer': window.location.origin,
           'X-Title': 'UCP Calculator'
         },
         body: JSON.stringify({
-          model: MODEL,
+          model: process.env.MODEL,
           messages: [
             {
               role: 'user',

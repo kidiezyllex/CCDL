@@ -1,6 +1,3 @@
-import React from 'react';
-
-// Import UCPData type from Calculator.tsx
 import type { UCPData } from './Calculator';
 
 interface UCPFormProps {

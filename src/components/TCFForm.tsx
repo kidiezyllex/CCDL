@@ -1,9 +1,24 @@
+interface Factor {
+  id: number;
+  name: string;
+  weight: number;
+  value: number;
+}
+
+interface TCFData {
+  factors: Factor[];
+}
+
 export function TCFForm({
   data,
   onChange
-}) {
-  const handleFactorChange = (id, value) => {
-    const newFactors = data.factors.map(factor => {
+}: { data: TCFData; onChange: (data: TCFData) => void }
+) {
+  const handleFactorChange = (
+    id: number,
+    value: string
+  ) => {
+    const newFactors = data.factors.map((factor: Factor) => {
       if (factor.id === id) {
         return {
           ...factor,
@@ -18,7 +33,7 @@ export function TCFForm({
     });
   };
   const calculateTFactor = () => {
-    return data.factors.reduce((sum, factor) => sum + factor.weight * factor.value, 0);
+    return data.factors.reduce((sum: number, factor: Factor) => sum + factor.weight * factor.value, 0);
   };
   const calculateTCF = () => {
     return 0.6 + 0.01 * calculateTFactor();
@@ -49,7 +64,7 @@ export function TCFForm({
             </tr>
           </thead>
           <tbody>
-            {data.factors.map(factor => <tr key={factor.id} className="border-t">
+            {data.factors.map((factor: Factor) => <tr key={factor.id} className="border-t">
                 <td className="px-3 py-2 text-sm">{factor.name}</td>
                 <td className="px-3 py-2 text-sm">{factor.weight}</td>
                 <td className="px-3 py-2">
