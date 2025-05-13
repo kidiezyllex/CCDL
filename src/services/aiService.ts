@@ -1,5 +1,5 @@
-const OPENROUTER_API_KEY = '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';
-const MODEL = 'openai/gpt-3.5-turbo-0613';
+// const OPENROUTER_API_KEY = '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';
+// const MODEL = 'openai/gpt-3.5-turbo-0613';
 
 interface AnalysisResult {
   uaw?: {
